@@ -1,0 +1,144 @@
+#!/usr/bin/bash
+
+# Copyright (c) 2021 Tuncay D.
+# MIT License, see LICENSE
+
+# RETROARCH RUN SCRIPT
+
+# This script is to run emulator cores from RetroArch without using the GUI.
+# There are two main ways of doing that: a) associate the filetype of an ROM to
+# this script, b) run this script explicitly through commandline with the ROM
+# file as an argument. Unfortunately wildcards was problematic, so it does not
+# support globbing with wildcards. sorry. You have to resolve the path before
+# running it with the script. At least relative paths are working.
+
+# FILETYPE: To associate the filetype with this script, right mouse click on
+# the rom file, select "open with..." and choose this script. From now on you
+# can just double click a rom in your file browser of choice to play with
+# RetroArch emulators.
+
+# COMMANDLINE: When run through the commandline, the script at least requires
+# the filename or path to a game rom. Relative paths and "~/" is supported, but
+# no wildcards or multiple files. You have to make sure the wildcards resolve
+# to a single file. An optional system name like "gb" or "snes" can be
+# specified after the ROM, to override the default core. This is also useful
+# for general filetypes like "bin" or "chd".
+
+# Usage:
+#   emulate ROM [SYSTEM]
+#
+# Examples:
+#   emulate "Pinball Dreams (U).smc"
+#   emulate "~/Emulator/roms/gb/Super Mario Land (W) (V1.1) [!].gb" gb
+
+# Configuration is done in 3 steps: 1.) Set the config_file variable to your
+# retroarch.cfg. 2.) Change or add new cores to the list of cores. 3.) A little
+# below in the script also associate the filetypes to the cores you added here.
+
+## SETTINGS
+
+# Path to your retroarch.cfg config file.
+
+config_file="$HOME/.config/retroarch/retroarch.cfg"
+
+# Add your emulator cores at this place. Just follow the same format, I am sure
+# you will figure it out. ;-) The cores need to be installed via retroarch
+# first, as this script just runs them. And don't forget to add rules for your
+# filetypes below at SETTINGS:FILETYPES section too.
+
+core_a26="stella_libretro"
+core_pce="mednafen_pce_libretro"
+core_nes="mesen_libretro"
+core_snes="snes9x_libretro"
+core_gb="sameboy_libretro"
+core_gbc="sameboy_libretro"
+core_gba="mgba_libretro"
+core_n64="mupen64plus_next_libretro"
+core_sms="smsplus_libretro"
+core_gg="smsplus_libretro"
+core_md="genesis_plus_gx_libretro"
+core_32x="picodrive_libretro"
+
+## END OF SETTINGS
+
+# Extract path of libretro directory for the cores from the retroarch.cfg
+# config file. No need to specify manually.
+
+#libretro="$HOME/.config/retroarch/cores"
+#libretro="/usr/lib/libretro/cores"
+
+libretro=$(grep -oP '(?<=libretro_directory = ").*(?=")' "$config_file")
+libretro="${libretro/#\~/$HOME}"
+libretro=$(echo $libretro)
+libretro="$(readlink -f -n "$libretro")"
+
+
+# Get full path of the rom.
+rom="${1/#\~/$HOME}"
+rom=$(echo $rom)
+rom=$(readlink -f -n "$rom")
+
+if [ ! -z "$2" ]; then
+
+    # Force a specific core by specifiyng second script argument.  In example
+    # script argument 2 as "snes" will be replaces with the path specified in
+    # previously defined variable "core_snes".
+
+    core="core_$2"
+
+elif [ ! -z "$1"]; then
+
+    # Associate filetypes to the predefined cores. You can even specify
+    # subfolders, in example: *megadrive/*.bin)   core="$core_md"     ;;
+    # Could come handy for same file format, but in different folders for
+    # different emulators, in example 'bin' or any 'chd'.
+
+    case "$rom" in
+
+        ## SETTINGS:FILETYPES
+
+        *.a26)  core="$core_a26"    ;;
+        *.pce)  core="$core_pce"    ;;
+        *.nes)  core="$core_nes"    ;;
+        *.fds)  core="$core_nes"    ;;
+        *.smc)  core="$core_snes"   ;;
+        *.sfc)  core="$core_snes"   ;;
+        *.gb)   core="$core_gb"     ;;
+        *.gbc)  core="$core_gbc"    ;;
+        *.gba)  core="$core_gba"    ;;
+        *.z64)  core="$core_n64"    ;;
+        *.n64)  core="$core_n64"    ;;
+        *.sms)  core="$core_sms"    ;;
+        *.gg)   core="$core_gg"     ;;
+        *.md)   core="$core_md"     ;;
+        *.smd)  core="$core_md"     ;;
+        *.gen)  core="$core_md"     ;;
+        *.32x)  core="$core_32x"    ;;
+
+        # ADD HERE YOUR FILETYPES
+
+        ## END OF SETTINGS:FILETYPES
+
+    esac
+
+else
+
+    echo "Usage: ROM [SYSTEM]"
+    exit
+
+fi
+
+core="$libretro/$core.so"
+
+# Final check and then run.
+
+if [ -z ${core} ]; then
+    echo "Unknown extension in: $rom"
+elif [ ! -f ${core} ]; then
+    echo "Core not found: $core"
+else
+
+    retroarch --fullscreen --libretro="$core" --config="$config_file" "$rom"
+
+fi
+

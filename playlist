@@ -1,0 +1,86 @@
+#!/usr/bin/bash
+
+# Copyright (c) 2021 Tuncay D.
+# MIT License, see LICENSE
+
+# RETROARCH PLAYLIST EXTRACTOR
+
+# This script will extract all game "path" from a RetroArch playlist file with
+# the ending ".lpl". The extracted list will be opened up as a menu in either
+# dmenu or rofi and the selected entry is output to stdout. This could be
+# combined with other applications, in example "emulate playlist".
+
+# Dmenu can be disabled, in which case all found entries will be output. In
+# this case you can further filter out and combine with other programs
+# yourself as you like.
+
+# Usage:
+#   playlist [mode] [list]
+#
+# Examples:
+#   playlist
+#   playlist rofi
+#   playlist nofilter "Nintendo - Game Boy"
+#   playlist dmenu "/home/tuncay/.config/retroarch/playlists/Atari - 2600.lpl"
+
+## SETTINGS
+
+# Path to your retroarch config folder.
+
+retroarch_dir="$HOME/.config/retroarch"
+
+# What program to use for selecting or filtering out the list.
+#   nofilter: do not filter the list, output every game
+#   last: get top most single entry, useful in combination with history
+#   dmenu: use dmenu program to create a gui and select one game
+#   rofi: similar and an alternative program to dmenu
+
+default_mode="nofilter"
+
+## END OF SETTINGS
+
+# Argument 1: Override default mode.
+
+if [ ! -z "$1" ]; then
+    mode="$1"
+else
+    mode="$default_mode"
+fi
+
+# Argument 2: Specify a playlist or default to history.
+
+if [ ! -z "$2" ]; then
+
+    if [[ "$2" == *.lpl  ]]; then
+        playlist="$2"
+    else
+        playlist="$retroarch_dir/playlists/$2.lpl"
+    fi
+
+else
+    playlist="$retroarch_dir/content_history.lpl"
+fi
+
+playlist="${playlist/#\~/$HOME}"
+playlist=$(echo $playlist)
+playlist="$(readlink -f -n "$playlist")"
+
+# Extract all path from playlist.
+
+games_path=$(grep -oP '(?<="path": ").*(?=",)' "$playlist")
+
+# Add filter or a program to the chain.
+
+case "$mode" in
+
+    nofilter)   echo "$games_path" ;;
+    last)       echo "$games_path" | head -n 1 ;;
+    dmenu)      echo "$games_path" | dmenu -l 15 ;;
+    rofi)       echo "$games_path" | rofi -dmenu -i ;;
+
+esac
+
+# Output.
+
+echo "$games_path" | $mode_command
+
