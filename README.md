@@ -1,10 +1,21 @@
-# emulate / playlist for RetroArch
+# 🎮 emulate / playlist for RetroArch
 
 RetroArch run script and playlist extractor on Linux
 
 - **Author**: Tuncay D.
 - **License**: [MIT License](LICENSE)
 - **Source**: [Github source](https://github.com/thingsiplay/emulate)
+
+```
+                          ___             __             
+                         /\_ \           /\ \__          
+   __    ___ ___   __  __\//\ \      __  \ \ ,_\    __   
+ /'__`\/' __` __`\/\ \/\ \ \ \ \   /'__`\ \ \ \/  /'__`\ 
+/\  __//\ \/\ \/\ \ \ \_\ \ \_\ \_/\ \L\.\_\ \ \_/\  __/ 
+\ \____\ \_\ \_\ \_\ \____/ /\____\ \__/.\_\\ \__\ \____\
+ \/____/\/_/\/_/\/_/\/___/  \/____/\/__/\/_/ \/__/\/____/
+                                                         
+```
 
 ## Introduction
 
@@ -132,11 +143,17 @@ another program.
 
 There is not much going on here for the installation. There are only two
 scripts, which are expected to be in "PATH", but it is not required. Just copy
-the scripts "emulate" and "playlist" and that's it.
+the scripts "emulate" and "playlist" and that's it.  These scripts are running
+RetroArch, so make sure RetroArch is fully installed and configured and works
+already. Also if you want to use "dmenu" or "rofi", you have to install them
+too, but they are not required.
 
-These scripts are running RetroArch, so make sure RetroArch is fully installed
-and configured and works already. Also if you want to use "dmenu" or "rofi",
-you have to install them too, but they are not required.
+## Known bugs, limitations and quirks
+
+The "emulate" script runs another instance of RetroArch and I have no clue if
+this can lead to any conflict while another RetroArch GUI is open. I generally
+recommend to close any RetroArch GUI before playing this way. Or at least
+immadiately close the RetroArch GUI when running from script.
 
 ## Feedback
 
