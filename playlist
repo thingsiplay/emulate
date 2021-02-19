@@ -5,31 +5,13 @@
 
 # RETROARCH PLAYLIST EXTRACTOR
 
-# This script will extract all game "path" from a RetroArch playlist file with
-# the ending ".lpl". The extracted list will be opened up as a menu in either
-# dmenu or rofi and the selected entry is output to stdout. This could be
-# combined with other applications, in example "emulate playlist".
-
-# Dmenu can be disabled, in which case all found entries will be output. In
-# this case you can further filter out and combine with other programs
-# yourself as you like.
-
-# Usage:
-#   playlist [mode] [list]
-#
-# Examples:
-#   playlist
-#   playlist rofi
-#   playlist nofilter "Nintendo - Game Boy"
-#   playlist dmenu "/home/tuncay/.config/retroarch/playlists/Atari - 2600.lpl"
-
 ## SETTINGS
 
 # Path to your retroarch config folder.
 
 retroarch_dir="$HOME/.config/retroarch"
 
-# What program to use for selecting or filtering out the list.
+# Default filter mode, if not specified as script argument 1.
 #   nofilter: do not filter the list, output every game
 #   last: get top most single entry, useful in combination with history
 #   dmenu: use dmenu program to create a gui and select one game
