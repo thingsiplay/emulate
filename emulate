@@ -5,36 +5,6 @@
 
 # RETROARCH RUN SCRIPT
 
-# This script is to run emulator cores from RetroArch without using the GUI.
-# There are two main ways of doing that: a) associate the filetype of an ROM to
-# this script, b) run this script explicitly through commandline with the ROM
-# file as an argument. Unfortunately wildcards was problematic, so it does not
-# support globbing with wildcards. sorry. You have to resolve the path before
-# running it with the script. At least relative paths are working.
-
-# FILETYPE: To associate the filetype with this script, right mouse click on
-# the rom file, select "open with..." and choose this script. From now on you
-# can just double click a rom in your file browser of choice to play with
-# RetroArch emulators.
-
-# COMMANDLINE: When run through the commandline, the script at least requires
-# the filename or path to a game rom. Relative paths and "~/" is supported, but
-# no wildcards or multiple files. You have to make sure the wildcards resolve
-# to a single file. An optional system name like "gb" or "snes" can be
-# specified after the ROM, to override the default core. This is also useful
-# for general filetypes like "bin" or "chd".
-
-# Usage:
-#   emulate ROM [SYSTEM]
-#
-# Examples:
-#   emulate "Pinball Dreams (U).smc"
-#   emulate "~/Emulator/roms/gb/Super Mario Land (W) (V1.1) [!].gb" gb
-
-# Configuration is done in 3 steps: 1.) Set the config_file variable to your
-# retroarch.cfg. 2.) Change or add new cores to the list of cores. 3.) A little
-# below in the script also associate the filetypes to the cores you added here.
-
 ## SETTINGS
 
 # Path to your retroarch.cfg config file.
@@ -72,9 +42,27 @@ libretro="${libretro/#\~/$HOME}"
 libretro=$(echo $libretro)
 libretro="$(readlink -f -n "$libretro")"
 
+if [ ! -z "$1" ]; then
 
-# Get full path of the rom.
-rom="${1/#\~/$HOME}"
+    # Get full path of the rom.
+
+    rom="$1"
+
+else
+
+    # Get rom from stdin, if provided. This will be overwritten, if an argument
+    # is given.
+
+    if test ! -t 0; then
+        while read line; do
+            rom="$line"
+            break
+        done < /dev/stdin
+    fi
+
+fi
+
+rom="${rom/#\~/$HOME}"
 rom=$(echo $rom)
 rom=$(readlink -f -n "$rom")
 
@@ -86,7 +74,7 @@ if [ ! -z "$2" ]; then
 
     core="core_$2"
 
-elif [ ! -z "$1"]; then
+elif [ ! "$rom" == "" ]; then
 
     # Associate filetypes to the predefined cores. You can even specify
     # subfolders, in example: *megadrive/*.bin)   core="$core_md"     ;;

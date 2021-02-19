@@ -80,7 +80,3 @@ case "$mode" in
 
 esac
 
-# Output.
-
-echo "$games_path" | $mode_command
-
