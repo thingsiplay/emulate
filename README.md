@@ -17,6 +17,13 @@ RetroArch run script and playlist extractor on Linux
                                                          
 ```
 
+## Note
+
+I took the idea of the script **emulate** and wrote an entire program in Rust
+that is compiled. It is faster and more feature complete, supporting an external
+configuration file. Have a look, if you are interested into it:
+https://github.com/thingsiplay/enjoy
+
 ## Introduction
 
 Two little helper scripts, with the focus to run games from your RetroArch
